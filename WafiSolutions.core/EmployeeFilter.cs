@@ -16,7 +16,7 @@ public class EmployeeFilter
         Name = "";
         Email = "";
         Mobile = "";
-        DateOfBirth = DateTime.Now;
+        DateOfBirth = "";
     }
 
     public int PageNo { get; set; }
@@ -24,5 +24,5 @@ public class EmployeeFilter
     public string Name { get; set; }
     public string Email { get; set; }
     public string Mobile { get; set; }
-    public DateTime DateOfBirth { get; set; }
+    public string DateOfBirth { get; set; }
 }

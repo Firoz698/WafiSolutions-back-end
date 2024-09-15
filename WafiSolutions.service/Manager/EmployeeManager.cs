@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using WafiSolutions.core;
@@ -15,18 +16,18 @@ namespace WafiSolutions.service.Manager
 {
     public class EmployeeManager : IEmployeeInterface
     {
-        public DBContext _DataBase;
+        public DBContext _dataBase;
         public EmployeeManager(DBContext dataBase)
         {
-            _DataBase = dataBase;
+            _dataBase = dataBase;
         }
 
         public async Task<IActionResult> Add(Employee employee)
         {
             try
             {
-                await _DataBase.Employees.AddAsync(employee);
-                _DataBase.SaveChanges();
+                await _dataBase.Employees.AddAsync(employee);
+                _dataBase.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -43,7 +44,29 @@ namespace WafiSolutions.service.Manager
                     throw new Exception("Invalid page number or page size.");
                 }
 
-                var query = _DataBase.Employees.AsQueryable();
+                var query = _dataBase.Employees.AsQueryable();
+                if (!string.IsNullOrEmpty(employeeFilter.Name))
+                {
+                    query = query.Where(i => i.FirstName.ToLower().Contains(employeeFilter.Name.Trim().ToLower()));
+                }
+
+                if (!string.IsNullOrEmpty(employeeFilter.Email))
+                {
+                    query = query.Where(i => i.Email.ToLower().Contains(employeeFilter.Email.Trim().ToLower()));
+                }
+
+                if (!string.IsNullOrEmpty(employeeFilter.Mobile))
+                {
+                    query = query.Where(i => i.Mobile.Contains(employeeFilter.Mobile.Trim())); 
+                }
+                //if (!string.IsNullOrEmpty(employeeFilter.DateOfBirth))
+                //{
+                //    if (DateTime.TryParse(employeeFilter.DateOfBirth, out DateTime parsedDate))
+                //    {
+                //        query = query.Where(i => i.DateOfBirth.Date == parsedDate.Date);
+                //    }
+                //}
+
                 var totalItems = await query.CountAsync(); // Await CountAsync
                 var pagedItems = await query
                     .Skip((employeeFilter.PageNo - 1) * employeeFilter.PageSize)
@@ -62,13 +85,13 @@ namespace WafiSolutions.service.Manager
             catch (Exception ex)
             {
 
-                throw;
+                throw new Exception(ex.Message);
             }
         }
 
         public Employee GetEmployeeById(int Id)
         {
-            return _DataBase.Employees.FirstOrDefault(x=>x.Id==Id);
+            return _dataBase.Employees.FirstOrDefault(x=>x.Id==Id);
             
         }
         public async Task<IActionResult> Update(Employee employee)
@@ -76,8 +99,8 @@ namespace WafiSolutions.service.Manager
             Employee StorUser = new Employee();
             try
             {
-               _DataBase.Employees.Update(employee);
-               _DataBase.SaveChanges();
+               _dataBase.Employees.Update(employee);
+               _dataBase.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -90,11 +113,11 @@ namespace WafiSolutions.service.Manager
         {
             try
             {
-                var employee = await _DataBase.Employees.FindAsync(Id);
+                var employee = await _dataBase.Employees.FindAsync(Id);
                 if (employee != null)
                 {
-                    _DataBase.Employees.Remove(employee);
-                    _DataBase.SaveChanges();
+                    _dataBase.Employees.Remove(employee);
+                    _dataBase.SaveChanges();
                 }
                 return employee;
             }

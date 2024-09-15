@@ -110,6 +110,7 @@ namespace WafiSolutions.api.Controllers
         public Task<Employee> DeletedEmployee(int Id)
         {
             return _iemployeeInterface.DeleteById(Id);
+            
         }
     }
 }
